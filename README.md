@@ -1,16 +1,76 @@
-# React + Vite
+# Quiz Generator Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React-based frontend application for an AI-powered quiz generator that allows users to generate interactive quizzes through a chat-based interface.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Overview
 
-## React Compiler
+This application provides the user interface for the Quiz Generator system. Users can log in, create chat sessions, send topics, and receive AI-generated quizzes rendered dynamically in the browser.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The frontend communicates with a Laravel REST API backend.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Tech Stack
+
+- Frontend: React
+- Build Tool: Vite
+- Styling: CSS 
+- Backend API: Laravel
+
+---
+
+## Features
+
+- User authentication (Login / Register)
+- Guest mode support
+- Chat-based quiz generation
+- Dynamic quiz rendering
+- Support for MCQ and True/False questions
+- Chat history for authenticated users
+
+---
+
+## Backend API
+
+This frontend is connected to the Quiz Generator API.
+
+Backend repository:  
+https://github.com/cerine0205/quiz-generator-api.git
+
+---
+
+## Main Pages
+
+- Login
+- Register
+- Chat
+- Guest Quiz Generator
+
+---
+
+## API Integration
+
+The application communicates with the backend using REST API endpoints:
+
+- POST /api/register
+- POST /api/login
+- GET /api/user
+- GET /api/chats
+- POST /api/chats
+- GET /api/chats/{id}
+- DELETE /api/chats/{id}
+- POST /api/chats/{id}/generate
+- POST /api/guest/generate
+
+---
+
+## Future Improvements
+
+- Quiz scoring system
+- Difficulty levels
+- Improved UI/UX
+- Dark mode
+- User performance dashboard
+
