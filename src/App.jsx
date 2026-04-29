@@ -1,16 +1,13 @@
-import Button from "./components/Button";
-import ChatBubble from "./components/ChatBubble";
-import Input from "./components/Input";
-import Loading from "./components/Loading";
-import QuestionCard from "./components/QuestionCard";
-import QuizRenderer from "./components/QuizRenderer";
-import Sidebar from "./components/Sidebar";
-
-function App() {
- document.documentElement.setAttribute("data-theme", "dark");
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Welcome from "./pages/Welcome";
+import GuestChat from "./pages/GuestChat";
+export default function App() {
   return (
-    <div>App </div>
-);
+    <BrowserRouter>
+      <Routes>
+        <Route path="*" element={<Welcome/>} />
+        <Route path="/guest" element={<GuestChat />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
-
-export default App;
