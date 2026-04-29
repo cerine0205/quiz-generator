@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import Sidebar from "../components/Sidebar";
 import Input from "../components/Input";
 import Button from "../components/Button";
@@ -9,176 +11,222 @@ import Loading from "../components/Loading";
 import { createChat, getChats, getChat } from "../api/chat";
 import { generateQuiz } from "../api/quiz";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
 
 export default function Chat() {
-    const navigate = useNavigate();
-    const { logout } = useAuth();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
-    const handleLogout = async () => {
-        await logout();
-        navigate("/");
+  const [chats, setChats] = useState([]);
+  const [activeChatId, setActiveChatId] = useState(null);
+
+  const [topic, setTopic] = useState("");
+  const [quiz, setQuiz] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [userMessage, setUserMessage] = useState("");
+
+  const [answersByChat, setAnswersByChat] = useState({});
+
+  const currentAnswers = answersByChat[activeChatId] || {};
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
+
+  useEffect(() => {
+    const loadChats = async () => {
+      try {
+        const res = await getChats();
+        setChats(res.data);
+      } catch (err) {
+        console.error(err);
+      }
     };
 
-    const [chats, setChats] = useState([]);
-    const [activeChatId, setActiveChatId] = useState(null);
+    loadChats();
+  }, []);
 
-    const [topic, setTopic] = useState("");
-    const [quiz, setQuiz] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [userMessage, setUserMessage] = useState("");
+  const handleSelectChat = async (id) => {
+    try {
+      const res = await getChat(id);
 
-    const [answersByChat, setAnswersByChat] = useState({});
+      const userMsg = res.data.messages.find((msg) => msg.sender === "user");
+      const aiMsg = res.data.messages.find((msg) => msg.sender === "ai");
 
-    useEffect(() => {
-        const loadChats = async () => {
-            try {
-                const res = await getChats();
-                setChats(res.data);
-            } catch (err) {
-                console.error(err);
-            }
-        };
+      setActiveChatId(id);
+      setUserMessage(userMsg?.content?.text || "");
+      setQuiz(aiMsg?.content || null);
+      setTopic("");
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-        loadChats();
-    }, []);
+  const handleGenerate = async (e) => {
+    e.preventDefault();
+    if (!topic.trim()) return;
 
-    const handleSelectChat = async (id) => {
-        try {
-            const res = await getChat(id);
+    setLoading(true);
+    setUserMessage(topic);
 
-            const userMsg = res.data.messages.find((msg) => msg.sender === "user");
-            const aiMsg = res.data.messages.find((msg) => msg.sender === "ai");
+    try {
+      const chatRes = await createChat({
+        title: topic,
+      });
 
-            setActiveChatId(id);
-            setUserMessage(userMsg?.content?.text || "");
-            setQuiz(aiMsg?.content || null);
-            setTopic("");
-        } catch (err) {
-            console.error(err);
-        }
-    };
+      const chatId = chatRes.data.id;
 
-    const handleGenerate = async (e) => {
-        e.preventDefault();
-        if (!topic.trim()) return;
+      setChats((prev) => [chatRes.data, ...prev]);
+      setActiveChatId(chatId);
 
-        setLoading(true);
-        setUserMessage(topic);
+      const quizRes = await generateQuiz(chatId, {
+        topic,
+      });
 
-        try {
-            const chatRes = await createChat({
-                title: topic,
-            });
+      setQuiz(quizRes.data);
+      setTopic("");
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            const chatId = chatRes.data.id;
+  const handleNewChat = () => {
+    setActiveChatId(null);
+    setQuiz(null);
+    setUserMessage("");
+    setTopic("");
+  };
 
-            setChats((prev) => [chatRes.data, ...prev]);
-            setActiveChatId(chatId);
+  const calculateScore = () => {
+    if (!quiz) return 0;
 
-            const quizRes = await generateQuiz(chatId, {
-                topic,
-            });
+    return quiz.questions.reduce((score, question, index) => {
+      if (currentAnswers[index] === question.correct_answer) {
+        return score + 1;
+      }
 
-            setQuiz(quizRes.data);
-            setTopic("");
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
+      return score;
+    }, 0);
+  };
 
-    const handleNewChat = () => {
-        setActiveChatId(null);
-        setQuiz(null);
-        setUserMessage("");
-        setTopic("");
-    };
+  const getLevel = () => {
+    if (!quiz) return "";
 
-    return (
-        <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
-            <Sidebar
-                chats={chats}
-                activeChatId={activeChatId}
-                onNewChat={handleNewChat}
-                onSelectChat={handleSelectChat}
-                onLogout={handleLogout}
-            />
+    const score = calculateScore();
+    const total = quiz.questions.length;
 
-            <div
-                style={{
-                    flex: 1,
-                    position: "relative",
-                    height: "100vh",
-                    overflow: "hidden",
+    if (score <= total * 0.4) return "Beginner";
+    if (score <= total * 0.7) return "Intermediate";
+    return "Advanced";
+  };
+
+  const isCompleted =
+    quiz && Object.keys(currentAnswers).length === quiz.questions.length;
+
+  return (
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+      <Sidebar
+        chats={chats}
+        activeChatId={activeChatId}
+        onNewChat={handleNewChat}
+        onSelectChat={handleSelectChat}
+        onLogout={handleLogout}
+      />
+
+      <div
+        style={{
+          flex: 1,
+          position: "relative",
+          height: "100vh",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            height: "100%",
+            overflowY: "auto",
+            padding: "32px",
+            paddingBottom: "120px",
+          }}
+        >
+          {userMessage && <ChatBubble sender="user">{userMessage}</ChatBubble>}
+
+          {loading && <Loading />}
+
+          {quiz && (
+            <ChatBubble sender="ai">
+              <QuizRenderer
+                key={activeChatId}
+                quiz={quiz}
+                answers={currentAnswers}
+                onAnswerChange={(questionIndex, answer) => {
+                  setAnswersByChat((prev) => ({
+                    ...prev,
+                    [activeChatId]: {
+                      ...(prev[activeChatId] || {}),
+                      [questionIndex]: answer,
+                    },
+                  }));
                 }}
+              />
+            </ChatBubble>
+          )}
+
+          {isCompleted && (
+            <div
+              style={{
+                marginTop: "16px",
+                background: "var(--color-card)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "16px",
+                padding: "16px",
+                boxShadow: "var(--shadow-sm)",
+              }}
             >
-                <div
-                    style={{
-                        height: "100%",
-                        overflowY: "auto",
-                        padding: "32px",
-                        paddingBottom: "120px",
-                    }}
-                >
-                    {userMessage && <ChatBubble sender="user">{userMessage}</ChatBubble>}
-
-                    {loading && <Loading />}
-
-                    {quiz && (
-                        <ChatBubble sender="ai">
-                            <QuizRenderer
-                                key={activeChatId}
-                                quiz={quiz}
-                                answers={answersByChat[activeChatId] || {}}
-                                onAnswerChange={(questionIndex, answer) => {
-                                    setAnswersByChat((prev) => ({
-                                        ...prev,
-                                        [activeChatId]: {
-                                            ...(prev[activeChatId] || {}),
-                                            [questionIndex]: answer,
-                                        },
-                                    }));
-                                }}
-                            />
-                        </ChatBubble>
-                    )}
-                </div>
-
-                <form
-                    onSubmit={handleGenerate}
-                    style={{
-                        position: "absolute",
-                        bottom: "20px",
-                        left: "20px",
-                        right: "20px",
-                        display: "flex",
-                        gap: "10px",
-                        background: "var(--color-card)",
-                        padding: "12px",
-                        borderRadius: "16px",
-                        border: "1px solid var(--color-border)",
-                    }}
-                >
-                    <Input
-                        value={topic}
-                        onChange={(e) => setTopic(e.target.value)}
-                        placeholder="Enter a topic..."
-                        disabled={loading || quiz}
-                    />
-
-                    {!quiz ? (
-                        <Button type="submit" disabled={loading}>
-                            Generate
-                        </Button>
-                    ) : (
-                        <Button type="button" onClick={handleNewChat}>
-                            New Chat
-                        </Button>
-                    )}
-                </form>
+              <h3>Your Assessment Result</h3>
+              <p>
+                Score: {calculateScore()} / {quiz.questions.length}
+              </p>
+              <p>Level: {getLevel()}</p>
             </div>
+          )}
         </div>
-    );
+
+        <form
+          onSubmit={handleGenerate}
+          style={{
+            position: "absolute",
+            bottom: "20px",
+            left: "20px",
+            right: "20px",
+            display: "flex",
+            gap: "10px",
+            background: "var(--color-card)",
+            padding: "12px",
+            borderRadius: "16px",
+            border: "1px solid var(--color-border)",
+          }}
+        >
+          <Input
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            placeholder="Enter a topic..."
+            disabled={loading || quiz}
+          />
+
+          {!quiz ? (
+            <Button type="submit" disabled={loading}>
+              Generate
+            </Button>
+          ) : (
+            <Button type="button" onClick={handleNewChat}>
+              New Chat
+            </Button>
+          )}
+        </form>
+      </div>
+    </div>
+  );
 }

@@ -22,10 +22,11 @@ export default function GuestChat() {
     setLoading(true);
     setError("");
     setUserMessage(topic);
+    setAnswers({});
 
     try {
       const res = await generateGuestQuiz({
-        topic: topic,
+        topic,
       });
 
       setQuiz(res.data);
@@ -44,9 +45,33 @@ export default function GuestChat() {
     setUserMessage("");
     setError("");
     setAnswers({});
-    setQuiz(res.data);
-    setTopic("");
   };
+
+  const calculateScore = () => {
+    if (!quiz) return 0;
+
+    return quiz.questions.reduce((score, question, index) => {
+      if (answers[index] === question.correct_answer) {
+        return score + 1;
+      }
+
+      return score;
+    }, 0);
+  };
+
+  const getLevel = () => {
+    if (!quiz) return "";
+
+    const score = calculateScore();
+    const total = quiz.questions.length;
+
+    if (score <= total * 0.4) return "Beginner";
+    if (score <= total * 0.7) return "Intermediate";
+    return "Advanced";
+  };
+
+  const isCompleted =
+    quiz && Object.keys(answers).length === quiz.questions.length;
 
   const inputDisabled = loading || quiz;
 
@@ -72,9 +97,13 @@ export default function GuestChat() {
         <h2>Quiz Generator</h2>
 
         <div style={{ display: "flex", gap: "10px" }}>
-          <Button variant="secondary" onClick={() => (window.location.href = "/login")}>
+          <Button
+            variant="secondary"
+            onClick={() => (window.location.href = "/login")}
+          >
             Login
           </Button>
+
           <Button onClick={() => (window.location.href = "/register")}>
             Register
           </Button>
@@ -91,9 +120,7 @@ export default function GuestChat() {
       >
         <div style={{ marginBottom: "24px" }}>
           {userMessage && (
-            <ChatBubble sender="user">
-              {userMessage}
-            </ChatBubble>
+            <ChatBubble sender="user">{userMessage}</ChatBubble>
           )}
 
           {loading && <Loading text="Generating quiz..." />}
@@ -113,44 +140,27 @@ export default function GuestChat() {
             </ChatBubble>
           )}
 
-          {error && (
-            <p style={{ color: "var(--color-danger)" }}>
-              {error}
-            </p>
+          {isCompleted && (
+            <div
+              style={{
+                marginTop: "16px",
+                background: "var(--color-card)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "16px",
+                padding: "16px",
+                boxShadow: "var(--shadow-sm)",
+              }}
+            >
+              <h3>Your Assessment Result</h3>
+              <p>
+                Score: {calculateScore()} / {quiz.questions.length}
+              </p>
+              <p>Level: {getLevel()}</p>
+            </div>
           )}
+
+          {error && <p style={{ color: "var(--color-danger)" }}>{error}</p>}
         </div>
-
-        <form
-          onSubmit={handleGenerate}
-          style={{
-            position: "fixed",
-            bottom: "0",
-            left: "0",
-            right: "0",
-            padding: "16px",
-            background: "var(--color-card)",
-            borderTop: "1px solid var(--color-border)",
-            display: "flex",
-            gap: "10px",
-          }}
-        >
-          <Input
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            placeholder="Enter a topic..."
-            disabled={inputDisabled}
-          />
-
-          {!quiz ? (
-            <Button type="submit" disabled={loading}>
-              Generate
-            </Button>
-          ) : (
-            <Button type="button" onClick={handleNewQuiz}>
-              New Quiz
-            </Button>
-          )}
-        </form>
 
         {quiz && (
           <p
@@ -164,6 +174,38 @@ export default function GuestChat() {
           </p>
         )}
       </main>
+
+      <form
+        onSubmit={handleGenerate}
+        style={{
+          position: "fixed",
+          bottom: "0",
+          left: "0",
+          right: "0",
+          padding: "16px",
+          background: "var(--color-card)",
+          borderTop: "1px solid var(--color-border)",
+          display: "flex",
+          gap: "10px",
+        }}
+      >
+        <Input
+          value={topic}
+          onChange={(e) => setTopic(e.target.value)}
+          placeholder="Enter a topic..."
+          disabled={inputDisabled}
+        />
+
+        {!quiz ? (
+          <Button type="submit" disabled={loading}>
+            Generate
+          </Button>
+        ) : (
+          <Button type="button" onClick={handleNewQuiz}>
+            New Quiz
+          </Button>
+        )}
+      </form>
     </div>
   );
 }
