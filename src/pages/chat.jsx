@@ -9,9 +9,16 @@ import Loading from "../components/Loading";
 import { createChat, getChats, getChat } from "../api/chat";
 import { generateQuiz } from "../api/quiz";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Chat() {
+    const navigate = useNavigate();
     const { logout } = useAuth();
+
+    const handleLogout = async () => {
+        await logout();
+        navigate("/");
+    };
 
     const [chats, setChats] = useState([]);
     const [activeChatId, setActiveChatId] = useState(null);
@@ -20,6 +27,8 @@ export default function Chat() {
     const [quiz, setQuiz] = useState(null);
     const [loading, setLoading] = useState(false);
     const [userMessage, setUserMessage] = useState("");
+
+    const [answersByChat, setAnswersByChat] = useState({});
 
     useEffect(() => {
         const loadChats = async () => {
@@ -87,76 +96,89 @@ export default function Chat() {
         setTopic("");
     };
 
-   return (
-  <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
-    <Sidebar
-      chats={chats}
-      activeChatId={activeChatId}
-      onNewChat={handleNewChat}
-      onSelectChat={handleSelectChat}
-      onLogout={logout}
-    />
+    return (
+        <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+            <Sidebar
+                chats={chats}
+                activeChatId={activeChatId}
+                onNewChat={handleNewChat}
+                onSelectChat={handleSelectChat}
+                onLogout={handleLogout}
+            />
 
-    <div
-      style={{
-        flex: 1,
-        position: "relative",
-        height: "100vh",
-        overflow: "hidden",
-      }}
-    >
-      <div
-        style={{
-          height: "100%",
-          overflowY: "auto",
-          padding: "32px",
-          paddingBottom: "120px",
-        }}
-      >
-        {userMessage && <ChatBubble sender="user">{userMessage}</ChatBubble>}
+            <div
+                style={{
+                    flex: 1,
+                    position: "relative",
+                    height: "100vh",
+                    overflow: "hidden",
+                }}
+            >
+                <div
+                    style={{
+                        height: "100%",
+                        overflowY: "auto",
+                        padding: "32px",
+                        paddingBottom: "120px",
+                    }}
+                >
+                    {userMessage && <ChatBubble sender="user">{userMessage}</ChatBubble>}
 
-        {loading && <Loading />}
+                    {loading && <Loading />}
 
-        {quiz && (
-          <ChatBubble sender="ai">
-            <QuizRenderer quiz={quiz} />
-          </ChatBubble>
-        )}
-      </div>
+                    {quiz && (
+                        <ChatBubble sender="ai">
+                            <QuizRenderer
+                                key={activeChatId}
+                                quiz={quiz}
+                                answers={answersByChat[activeChatId] || {}}
+                                onAnswerChange={(questionIndex, answer) => {
+                                    setAnswersByChat((prev) => ({
+                                        ...prev,
+                                        [activeChatId]: {
+                                            ...(prev[activeChatId] || {}),
+                                            [questionIndex]: answer,
+                                        },
+                                    }));
+                                }}
+                            />
+                        </ChatBubble>
+                    )}
+                </div>
 
-      <form
-        onSubmit={handleGenerate}
-        style={{
-          position: "absolute",
-          bottom: "20px",
-          left: "20px",
-          right: "20px",
-          display: "flex",
-          gap: "10px",
-          background: "var(--color-card)",
-          padding: "12px",
-          borderRadius: "16px",
-          border: "1px solid var(--color-border)",
-        }}
-      >
-        <Input
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-          placeholder="Enter a topic..."
-          disabled={loading || quiz}
-        />
+                <form
+                    onSubmit={handleGenerate}
+                    style={{
+                        position: "absolute",
+                        bottom: "20px",
+                        left: "20px",
+                        right: "20px",
+                        display: "flex",
+                        gap: "10px",
+                        background: "var(--color-card)",
+                        padding: "12px",
+                        borderRadius: "16px",
+                        border: "1px solid var(--color-border)",
+                    }}
+                >
+                    <Input
+                        value={topic}
+                        onChange={(e) => setTopic(e.target.value)}
+                        placeholder="Enter a topic..."
+                        disabled={loading || quiz}
+                    />
 
-        {!quiz ? (
-          <Button type="submit" disabled={loading}>
-            Generate
-          </Button>
-        ) : (
-          <Button type="button" onClick={handleNewChat}>
-            New Chat
-          </Button>
-        )}
-      </form>
-    </div>
-  </div>
-);
+                    {!quiz ? (
+                        <Button type="submit" disabled={loading}>
+                            Generate
+                        </Button>
+                    ) : (
+                        <Button type="button" onClick={handleNewChat}>
+                            New Chat
+                        </Button>
+                    )}
+                </form>
+            </div>
+        </div>
+    );
 }
