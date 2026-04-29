@@ -5,3 +5,6 @@ export const generateQuiz = (chatId, data) =>
 
 export const generateGuestQuiz = (data) =>
   api.post("/guest/generate", data);
+
+export const generatePlan = (data) =>
+  api.post("/plan", data);

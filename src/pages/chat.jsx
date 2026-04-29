@@ -9,25 +9,10 @@ import QuizRenderer from "../components/QuizRenderer";
 import Loading from "../components/Loading";
 
 import { createChat, getChats, getChat } from "../api/chat";
-import { generateQuiz } from "../api/quiz";
+import { generateQuiz, generatePlan } from "../api/quiz";
 import { useAuth } from "../context/AuthContext";
 
 export default function Chat() {
-    // mock data for testing
-
-    const mockPlan = {
-        level: "Intermediate",
-        plan: [
-            { day: 1, task: "Learn variables and data types", resource: "YouTube: JS Basics" },
-            { day: 2, task: "Practice conditionals (if/else)", resource: "freeCodeCamp" },
-            { day: 3, task: "Understand loops (for/while)", resource: "MDN Docs" },
-            { day: 4, task: "Functions and scope", resource: "JavaScript.info" },
-            { day: 5, task: "Arrays and objects", resource: "YouTube: JS Arrays" },
-            { day: 6, task: "DOM basics", resource: "MDN DOM Guide" },
-            { day: 7, task: "Build small project", resource: "Todo App tutorial" },
-        ],
-    };
-    // end mock data
 
     const navigate = useNavigate();
     const { logout } = useAuth();
@@ -111,10 +96,14 @@ export default function Chat() {
         }
     };
 
-    const handleGeneratePlan = () => {
-        setPlan(mockPlan);
-    };
+    const handleGeneratePlan = async () => {
+        const res = await generatePlan({
+            topic: userMessage,
+            level: getLevel(),
+        });
 
+        setPlan(res.data);
+    };
     const handleNewChat = () => {
         setActiveChatId(null);
         setQuiz(null);
@@ -217,41 +206,41 @@ export default function Chat() {
                         </div>
                     )}
 
-                        {plan && (
-                    <div
-                        style={{
-                            marginTop: "16px",
-                            background: "var(--color-card)",
-                            border: "1px solid var(--color-border)",
-                            borderRadius: "16px",
-                            padding: "16px",
-                            boxShadow: "var(--shadow-sm)",
-                        }}
-                    >
-                        <h3>7-Day Learning Plan</h3>
-                        <p>Level: {plan.level}</p>
+                    {plan && (
+                        <div
+                            style={{
+                                marginTop: "16px",
+                                background: "var(--color-card)",
+                                border: "1px solid var(--color-border)",
+                                borderRadius: "16px",
+                                padding: "16px",
+                                boxShadow: "var(--shadow-sm)",
+                            }}
+                        >
+                            <h3>7-Day Learning Plan</h3>
+                            <p>Level: {plan.level}</p>
 
-                        <div style={{ marginTop: "10px", display: "flex", flexDirection: "column", gap: "10px" }}>
-                            {plan.plan.map((day) => (
-                                <div
-                                    key={day.day}
-                                    style={{
-                                        padding: "10px",
-                                        border: "1px solid var(--color-border)",
-                                        borderRadius: "10px",
-                                    }}
-                                >
-                                    <strong>Day {day.day}</strong>
-                                    <p>{day.task}</p>
-                                    <small style={{ color: "var(--color-text-light)" }}>
-                                        {day.resource}
-                                    </small>
-                                </div>
-                            ))}
+                            <div style={{ marginTop: "10px", display: "flex", flexDirection: "column", gap: "10px" }}>
+                                {plan.plan.map((day) => (
+                                    <div
+                                        key={day.day}
+                                        style={{
+                                            padding: "10px",
+                                            border: "1px solid var(--color-border)",
+                                            borderRadius: "10px",
+                                        }}
+                                    >
+                                        <strong>Day {day.day}</strong>
+                                        <p>{day.task}</p>
+                                        <small style={{ color: "var(--color-text-light)" }}>
+                                            {day.resource}
+                                        </small>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                )}
-                    
+                    )}
+
                 </div>
 
                 {!quiz && (

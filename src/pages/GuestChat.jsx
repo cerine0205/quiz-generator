@@ -4,62 +4,9 @@ import Input from "../components/Input";
 import Loading from "../components/Loading";
 import ChatBubble from "../components/ChatBubble";
 import QuizRenderer from "../components/QuizRenderer";
-import { generateGuestQuiz } from "../api/quiz";
+import { generateGuestQuiz, generatePlan } from "../api/quiz";
 
 export default function GuestChat() {
-
-  // mock data for testing
-  const mockQuiz = {
-    title: "JavaScript Basics",
-    questions: [
-      {
-        type: "mcq",
-        question: "What is JavaScript?",
-        options: ["Programming language", "Database", "OS", "Browser"],
-        correct_answer: "Programming language",
-      },
-      {
-        type: "TF",
-        question: "JavaScript runs only on the server.",
-        options: ["True", "False"],
-        correct_answer: "False",
-      },
-      {
-        type: "mcq",
-        question: "Which keyword declares a variable?",
-        options: ["var", "int", "define", "letvar"],
-        correct_answer: "var",
-      },
-      {
-        type: "TF",
-        question: "const can be reassigned.",
-        options: ["True", "False"],
-        correct_answer: "False",
-      },
-      {
-        type: "mcq",
-        question: "Which is a JS framework?",
-        options: ["React", "Laravel", "Django", "Flask"],
-        correct_answer: "React",
-      },
-    ],
-  };
-
-
-  const mockPlan = {
-    level: "Intermediate",
-    plan: [
-      { day: 1, task: "Learn variables and data types", resource: "YouTube: JS Basics" },
-      { day: 2, task: "Practice conditionals (if/else)", resource: "freeCodeCamp" },
-      { day: 3, task: "Understand loops (for/while)", resource: "MDN Docs" },
-      { day: 4, task: "Functions and scope", resource: "JavaScript.info" },
-      { day: 5, task: "Arrays and objects", resource: "YouTube: JS Arrays" },
-      { day: 6, task: "DOM basics", resource: "MDN DOM Guide" },
-      { day: 7, task: "Build small project", resource: "Todo App tutorial" },
-    ],
-  };
-
-  // end mock data
 
   const [topic, setTopic] = useState("");
   const [quiz, setQuiz] = useState(null);
@@ -78,16 +25,11 @@ export default function GuestChat() {
     setError("");
     setUserMessage(topic);
     setAnswers({});
+    setPlan(null);
 
     try {
-      // const res = await generateGuestQuiz({ topic });
-      // setQuiz(res.data);
-
-      // test
-      setTimeout(() => {
-        setQuiz(mockQuiz);
-        setLoading(false);
-      }, 800); //
+      const res = await generateGuestQuiz({ topic });
+      setQuiz(res.data);
 
       setTopic("");
     } catch (err) {
@@ -98,8 +40,18 @@ export default function GuestChat() {
     }
   };
 
-  const handleGeneratePlan = () => {
-    setPlan(mockPlan);
+  const handleGeneratePlan = async () => {
+    try {
+      const res = await generatePlan({
+        topic: userMessage,
+        level: getLevel(),
+      });
+
+      setPlan(res.data);
+    } catch (err) {
+      setError("Failed to generate learning plan.");
+      console.error(err);
+    }
   };
 
   const calculateScore = () => {
@@ -207,39 +159,39 @@ export default function GuestChat() {
           )}
 
           {plan && (
-  <div
-    style={{
-      marginTop: "16px",
-      background: "var(--color-card)",
-      border: "1px solid var(--color-border)",
-      borderRadius: "16px",
-      padding: "16px",
-      boxShadow: "var(--shadow-sm)",
-    }}
-  >
-    <h3>7-Day Learning Plan</h3>
-    <p>Level: {plan.level}</p>
+            <div
+              style={{
+                marginTop: "16px",
+                background: "var(--color-card)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "16px",
+                padding: "16px",
+                boxShadow: "var(--shadow-sm)",
+              }}
+            >
+              <h3>7-Day Learning Plan</h3>
+              <p>Level: {plan.level}</p>
 
-    <div style={{ marginTop: "10px", display: "flex", flexDirection: "column", gap: "10px" }}>
-      {plan.plan.map((day) => (
-        <div
-          key={day.day}
-          style={{
-            padding: "10px",
-            border: "1px solid var(--color-border)",
-            borderRadius: "10px",
-          }}
-        >
-          <strong>Day {day.day}</strong>
-          <p>{day.task}</p>
-          <small style={{ color: "var(--color-text-light)" }}>
-            {day.resource}
-          </small>
-        </div>
-      ))}
-    </div>
-  </div>
-)}
+              <div style={{ marginTop: "10px", display: "flex", flexDirection: "column", gap: "10px" }}>
+                {plan.plan.map((day) => (
+                  <div
+                    key={day.day}
+                    style={{
+                      padding: "10px",
+                      border: "1px solid var(--color-border)",
+                      borderRadius: "10px",
+                    }}
+                  >
+                    <strong>Day {day.day}</strong>
+                    <p>{day.task}</p>
+                    <small style={{ color: "var(--color-text-light)" }}>
+                      {day.resource}
+                    </small>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {error && <p style={{ color: "var(--color-danger)" }}>{error}</p>}
 
