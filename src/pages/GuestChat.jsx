@@ -12,6 +12,7 @@ export default function GuestChat() {
   const [loading, setLoading] = useState(false);
   const [userMessage, setUserMessage] = useState("");
   const [error, setError] = useState("");
+  const [answers, setAnswers] = useState({});
 
   const handleGenerate = async (e) => {
     e.preventDefault();
@@ -42,6 +43,9 @@ export default function GuestChat() {
     setQuiz(null);
     setUserMessage("");
     setError("");
+    setAnswers({});
+    setQuiz(res.data);
+    setTopic("");
   };
 
   const inputDisabled = loading || quiz;
@@ -77,14 +81,14 @@ export default function GuestChat() {
         </div>
       </header>
 
-  <main
-  style={{
-    maxWidth: "900px",
-    margin: "0 auto",
-    padding: "32px",
-    paddingBottom: "120px", 
-  }}
->
+      <main
+        style={{
+          maxWidth: "900px",
+          margin: "0 auto",
+          padding: "32px",
+          paddingBottom: "120px",
+        }}
+      >
         <div style={{ marginBottom: "24px" }}>
           {userMessage && (
             <ChatBubble sender="user">
@@ -96,7 +100,16 @@ export default function GuestChat() {
 
           {quiz && (
             <ChatBubble sender="ai">
-              <QuizRenderer quiz={quiz} />
+              <QuizRenderer
+                quiz={quiz}
+                answers={answers}
+                onAnswerChange={(questionIndex, answer) => {
+                  setAnswers((prev) => ({
+                    ...prev,
+                    [questionIndex]: answer,
+                  }));
+                }}
+              />
             </ChatBubble>
           )}
 
@@ -107,20 +120,20 @@ export default function GuestChat() {
           )}
         </div>
 
-   <form
-  onSubmit={handleGenerate}
-  style={{
-    position: "fixed",
-    bottom: "0",
-    left: "0",
-    right: "0",
-    padding: "16px",
-    background: "var(--color-card)",
-    borderTop: "1px solid var(--color-border)",
-    display: "flex",
-    gap: "10px",
-  }}
->
+        <form
+          onSubmit={handleGenerate}
+          style={{
+            position: "fixed",
+            bottom: "0",
+            left: "0",
+            right: "0",
+            padding: "16px",
+            background: "var(--color-card)",
+            borderTop: "1px solid var(--color-border)",
+            display: "flex",
+            gap: "10px",
+          }}
+        >
           <Input
             value={topic}
             onChange={(e) => setTopic(e.target.value)}

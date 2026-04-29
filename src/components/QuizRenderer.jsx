@@ -1,6 +1,10 @@
 import QuestionCard from "./QuestionCard";
 
-export default function QuizRenderer({ quiz, answers, onAnswerChange }) {
+export default function QuizRenderer({
+  quiz,
+  answers = {},
+  onAnswerChange = () => {},
+}) {
   if (!quiz) return null;
 
   return (
