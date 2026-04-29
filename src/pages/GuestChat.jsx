@@ -7,12 +7,67 @@ import QuizRenderer from "../components/QuizRenderer";
 import { generateGuestQuiz } from "../api/quiz";
 
 export default function GuestChat() {
+
+  // mock data for testing
+  const mockQuiz = {
+    title: "JavaScript Basics",
+    questions: [
+      {
+        type: "mcq",
+        question: "What is JavaScript?",
+        options: ["Programming language", "Database", "OS", "Browser"],
+        correct_answer: "Programming language",
+      },
+      {
+        type: "TF",
+        question: "JavaScript runs only on the server.",
+        options: ["True", "False"],
+        correct_answer: "False",
+      },
+      {
+        type: "mcq",
+        question: "Which keyword declares a variable?",
+        options: ["var", "int", "define", "letvar"],
+        correct_answer: "var",
+      },
+      {
+        type: "TF",
+        question: "const can be reassigned.",
+        options: ["True", "False"],
+        correct_answer: "False",
+      },
+      {
+        type: "mcq",
+        question: "Which is a JS framework?",
+        options: ["React", "Laravel", "Django", "Flask"],
+        correct_answer: "React",
+      },
+    ],
+  };
+
+
+  const mockPlan = {
+    level: "Intermediate",
+    plan: [
+      { day: 1, task: "Learn variables and data types", resource: "YouTube: JS Basics" },
+      { day: 2, task: "Practice conditionals (if/else)", resource: "freeCodeCamp" },
+      { day: 3, task: "Understand loops (for/while)", resource: "MDN Docs" },
+      { day: 4, task: "Functions and scope", resource: "JavaScript.info" },
+      { day: 5, task: "Arrays and objects", resource: "YouTube: JS Arrays" },
+      { day: 6, task: "DOM basics", resource: "MDN DOM Guide" },
+      { day: 7, task: "Build small project", resource: "Todo App tutorial" },
+    ],
+  };
+
+  // end mock data
+
   const [topic, setTopic] = useState("");
   const [quiz, setQuiz] = useState(null);
   const [loading, setLoading] = useState(false);
   const [userMessage, setUserMessage] = useState("");
   const [error, setError] = useState("");
   const [answers, setAnswers] = useState({});
+  const [plan, setPlan] = useState(null);
 
   const handleGenerate = async (e) => {
     e.preventDefault();
@@ -25,11 +80,15 @@ export default function GuestChat() {
     setAnswers({});
 
     try {
-      const res = await generateGuestQuiz({
-        topic,
-      });
+      // const res = await generateGuestQuiz({ topic });
+      // setQuiz(res.data);
 
-      setQuiz(res.data);
+      // test
+      setTimeout(() => {
+        setQuiz(mockQuiz);
+        setLoading(false);
+      }, 800); //
+
       setTopic("");
     } catch (err) {
       setError("Something went wrong. Please try again.");
@@ -39,23 +98,15 @@ export default function GuestChat() {
     }
   };
 
-  const handleNewQuiz = () => {
-    setTopic("");
-    setQuiz(null);
-    setUserMessage("");
-    setError("");
-    setAnswers({});
+  const handleGeneratePlan = () => {
+    setPlan(mockPlan);
   };
 
   const calculateScore = () => {
     if (!quiz) return 0;
 
     return quiz.questions.reduce((score, question, index) => {
-      if (answers[index] === question.correct_answer) {
-        return score + 1;
-      }
-
-      return score;
+      return answers[index] === question.correct_answer ? score + 1 : score;
     }, 0);
   };
 
@@ -72,8 +123,6 @@ export default function GuestChat() {
 
   const isCompleted =
     quiz && Object.keys(answers).length === quiz.questions.length;
-
-  const inputDisabled = loading || quiz;
 
   return (
     <div
@@ -119,9 +168,7 @@ export default function GuestChat() {
         }}
       >
         <div style={{ marginBottom: "24px" }}>
-          {userMessage && (
-            <ChatBubble sender="user">{userMessage}</ChatBubble>
-          )}
+          {userMessage && <ChatBubble sender="user">{userMessage}</ChatBubble>}
 
           {loading && <Loading text="Generating quiz..." />}
 
@@ -159,53 +206,108 @@ export default function GuestChat() {
             </div>
           )}
 
-          {error && <p style={{ color: "var(--color-danger)" }}>{error}</p>}
-        </div>
+          {plan && (
+  <div
+    style={{
+      marginTop: "16px",
+      background: "var(--color-card)",
+      border: "1px solid var(--color-border)",
+      borderRadius: "16px",
+      padding: "16px",
+      boxShadow: "var(--shadow-sm)",
+    }}
+  >
+    <h3>7-Day Learning Plan</h3>
+    <p>Level: {plan.level}</p>
 
-        {quiz && (
-          <p
-            style={{
-              marginTop: "12px",
-              color: "var(--color-text-light)",
-              fontSize: "14px",
-            }}
-          >
-            Guest quizzes are not saved. Login to save your chat history.
-          </p>
-        )}
+    <div style={{ marginTop: "10px", display: "flex", flexDirection: "column", gap: "10px" }}>
+      {plan.plan.map((day) => (
+        <div
+          key={day.day}
+          style={{
+            padding: "10px",
+            border: "1px solid var(--color-border)",
+            borderRadius: "10px",
+          }}
+        >
+          <strong>Day {day.day}</strong>
+          <p>{day.task}</p>
+          <small style={{ color: "var(--color-text-light)" }}>
+            {day.resource}
+          </small>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
+          {error && <p style={{ color: "var(--color-danger)" }}>{error}</p>}
+
+          {quiz && (
+            <p
+              style={{
+                marginTop: "12px",
+                color: "var(--color-text-light)",
+                fontSize: "14px",
+              }}
+            >
+              Guest quizzes are not saved. Login to save your chat history.
+            </p>
+          )}
+        </div>
       </main>
 
-      <form
-        onSubmit={handleGenerate}
-        style={{
-          position: "fixed",
-          bottom: "0",
-          left: "0",
-          right: "0",
-          padding: "16px",
-          background: "var(--color-card)",
-          borderTop: "1px solid var(--color-border)",
-          display: "flex",
-          gap: "10px",
-        }}
-      >
-        <Input
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-          placeholder="Enter a topic..."
-          disabled={inputDisabled}
-        />
+      {!quiz && (
+        <form
+          onSubmit={handleGenerate}
+          style={{
+            position: "fixed",
+            bottom: "0",
+            left: "0",
+            right: "0",
+            padding: "16px",
+            background: "var(--color-card)",
+            borderTop: "1px solid var(--color-border)",
+            display: "flex",
+            gap: "10px",
+          }}
+        >
+          <Input
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            placeholder="Enter a topic..."
+            disabled={loading}
+          />
 
-        {!quiz ? (
           <Button type="submit" disabled={loading}>
             Generate
           </Button>
-        ) : (
-          <Button type="button" onClick={handleNewQuiz}>
-            New Quiz
+        </form>
+      )}
+
+      {quiz && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "0",
+            left: "0",
+            right: "0",
+            padding: "16px",
+            background: "var(--color-card)",
+            borderTop: "1px solid var(--color-border)",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <Button
+            type="button"
+            disabled={!isCompleted}
+            onClick={handleGeneratePlan}
+          >
+            Generate Plan
           </Button>
-        )}
-      </form>
+        </div>
+      )}
     </div>
   );
 }
