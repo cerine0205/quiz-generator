@@ -3,6 +3,7 @@ import Welcome from "./pages/Welcome";
 import GuestChat from "./pages/GuestChat";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Chat from "./pages/chat";
 export default function App() {
   return (
     <BrowserRouter>
@@ -11,6 +12,7 @@ export default function App() {
         <Route path="/guest" element={<GuestChat />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/chat" element={<Chat />} />
       </Routes>
     </BrowserRouter>
   );

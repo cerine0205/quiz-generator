@@ -2,6 +2,7 @@ import Button from "./Button";
 
 export default function Sidebar({
   chats = [],
+  activeChatId,
   onNewChat,
   onSelectChat,
   onLogout,
@@ -20,27 +21,40 @@ export default function Sidebar({
     >
       <Button onClick={onNewChat}>New Chat</Button>
 
-      <div style={{ marginTop: "20px", flex: 1 }}>
-        {chats.map((chat) => (
-          <button
-            key={chat.id}
-            onClick={() => onSelectChat(chat.id)}
-            style={{
-              display: "block",
-              width: "100%",
-              padding: "10px",
-              textAlign: "left",
-              border: "none",
-              background: "transparent",
-              cursor: "pointer",
-              borderRadius: "8px",
-              color: "var(--color-text)",
-            }}
-          >
-            {chat.title}
-          </button>
-        ))}
-      </div>
+   <div
+  style={{
+    marginTop: "20px",
+    flex: 1,
+    overflowY: "auto",
+    paddingRight: "4px",
+  }}
+>
+  {chats.map((chat) => {
+    const isActive = chat.id === activeChatId;
+
+    return (
+      <button
+        key={chat.id}
+        onClick={() => onSelectChat(chat.id)}
+        style={{
+          display: "block",
+          width: "100%",
+          padding: "10px",
+          textAlign: "left",
+          border: "none",
+          cursor: "pointer",
+          borderRadius: "8px",
+          color: isActive ? "white" : "var(--color-text)",
+          background: isActive ? "var(--color-primary)" : "transparent",
+          fontWeight: isActive ? "600" : "400",
+          marginBottom: "6px",
+        }}
+      >
+        {chat.title}
+      </button>
+    );
+  })}
+</div>
 
       <button
         onClick={onLogout}
