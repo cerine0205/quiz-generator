@@ -4,10 +4,9 @@ import Input from "../components/Input";
 import Loading from "../components/Loading";
 import ChatBubble from "../components/ChatBubble";
 import QuizRenderer from "../components/QuizRenderer";
-import { generateGuestQuiz, generatePlan } from "../api/quiz";
+import { generateGuestQuiz, generateGuestPlan } from "../api/quiz";
 
 export default function GuestChat() {
-
   const [topic, setTopic] = useState("");
   const [quiz, setQuiz] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -30,7 +29,6 @@ export default function GuestChat() {
     try {
       const res = await generateGuestQuiz({ topic });
       setQuiz(res.data);
-
       setTopic("");
     } catch (err) {
       setError("Something went wrong. Please try again.");
@@ -42,7 +40,7 @@ export default function GuestChat() {
 
   const handleGeneratePlan = async () => {
     try {
-      const res = await generatePlan({
+      const res = await generateGuestPlan({
         topic: userMessage,
         level: getLevel(),
       });
@@ -172,7 +170,14 @@ export default function GuestChat() {
               <h3>7-Day Learning Plan</h3>
               <p>Level: {plan.level}</p>
 
-              <div style={{ marginTop: "10px", display: "flex", flexDirection: "column", gap: "10px" }}>
+              <div
+                style={{
+                  marginTop: "10px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "10px",
+                }}
+              >
                 {plan.plan.map((day) => (
                   <div
                     key={day.day}

@@ -100,6 +100,7 @@ export default function Chat() {
         const res = await generatePlan({
             topic: userMessage,
             level: getLevel(),
+            chat_id: activeChatId,
         });
 
         setPlan(res.data);

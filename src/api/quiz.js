@@ -8,3 +8,9 @@ export const generateGuestQuiz = (data) =>
 
 export const generatePlan = (data) =>
   api.post("/plan", data);
+
+export const generateGuestPlan = (data) =>
+  api.post("/guest/plan", data);
+
+export const getPlans = () =>
+  api.get("/plans");
