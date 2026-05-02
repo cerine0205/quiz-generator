@@ -1,5 +1,5 @@
 import Button from "./Button";
-
+import { useNavigate } from "react-router-dom";
 export default function Sidebar({
   chats = [],
   activeChatId,
@@ -7,6 +7,8 @@ export default function Sidebar({
   onSelectChat,
   onLogout,
 }) {
+  const navigate = useNavigate();
+
   return (
     <aside
       style={{
@@ -20,41 +22,48 @@ export default function Sidebar({
       }}
     >
       <Button onClick={onNewChat}>New Chat</Button>
+      <Button
+        variant="secondary"
+        onClick={() => navigate("/plans")}
+      >
+        View Plans
+      </Button>
 
-   <div
-  style={{
-    marginTop: "20px",
-    flex: 1,
-    overflowY: "auto",
-    paddingRight: "4px",
-  }}
->
-  {chats.map((chat) => {
-    const isActive = chat.id === activeChatId;
 
-    return (
-      <button
-        key={chat.id}
-        onClick={() => onSelectChat(chat.id)}
+      <div
         style={{
-          display: "block",
-          width: "100%",
-          padding: "10px",
-          textAlign: "left",
-          border: "none",
-          cursor: "pointer",
-          borderRadius: "8px",
-          color: isActive ? "white" : "var(--color-text)",
-          background: isActive ? "var(--color-primary)" : "transparent",
-          fontWeight: isActive ? "600" : "400",
-          marginBottom: "6px",
+          marginTop: "20px",
+          flex: 1,
+          overflowY: "auto",
+          paddingRight: "4px",
         }}
       >
-        {chat.title}
-      </button>
-    );
-  })}
-</div>
+        {chats.map((chat) => {
+          const isActive = chat.id === activeChatId;
+
+          return (
+            <button
+              key={chat.id}
+              onClick={() => onSelectChat(chat.id)}
+              style={{
+                display: "block",
+                width: "100%",
+                padding: "10px",
+                textAlign: "left",
+                border: "none",
+                cursor: "pointer",
+                borderRadius: "8px",
+                color: isActive ? "white" : "var(--color-text)",
+                background: isActive ? "var(--color-primary)" : "transparent",
+                fontWeight: isActive ? "600" : "400",
+                marginBottom: "6px",
+              }}
+            >
+              {chat.title}
+            </button>
+          );
+        })}
+      </div>
 
       <button
         onClick={onLogout}
