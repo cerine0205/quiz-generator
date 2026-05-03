@@ -29,6 +29,59 @@ export default function Plans() {
     loadPlans();
   }, []);
 
+  const getTitleFromUrl = (url) => {
+    try {
+      const domain = new URL(url).hostname.replace("www.", "");
+
+      if (domain.includes("youtube")) return "YouTube";
+      if (domain.includes("freecodecamp")) return "freeCodeCamp";
+      if (domain.includes("w3schools")) return "W3Schools";
+      if (domain.includes("developer.mozilla")) return "MDN Docs";
+      if (domain.includes("github")) return "GitHub";
+
+      return domain;
+    } catch {
+      return "";
+    }
+  };
+
+  const renderResource = (resource) => {
+    if (!resource) return null;
+
+    const isLink = resource.startsWith("http");
+    const title = isLink ? getTitleFromUrl(resource) : resource;
+
+    const content = (
+      <div
+        style={{
+          marginTop: "10px",
+          padding: "8px 10px",
+          borderRadius: "10px",
+          background: "var(--color-card)",
+          color: "var(--color-text-light)",
+          fontSize: "13px",
+          display: "inline-block",
+          cursor: isLink ? "pointer" : "default",
+        }}
+      >
+        📚 {title}
+      </div>
+    );
+
+    return isLink ? (
+      <a
+        href={resource}
+        target="_blank"
+        rel="noreferrer"
+        style={{ textDecoration: "none" }}
+      >
+        {content}
+      </a>
+    ) : (
+      content
+    );
+  };
+
   return (
     <div
       style={{
@@ -106,7 +159,7 @@ export default function Plans() {
               <div
                 key={plan.id}
                 style={{
-                  background: "rgba( var(--card-rgb), 0.85 )",
+                  background: "rgba(var(--card-rgb), 0.85)",
                   border: "1px solid var(--color-border)",
                   borderRadius: "22px",
                   padding: "20px",
@@ -166,7 +219,8 @@ export default function Plans() {
                     style={{
                       marginTop: "18px",
                       display: "grid",
-                      gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                      gridTemplateColumns:
+                        "repeat(auto-fit, minmax(240px, 1fr))",
                       gap: "12px",
                     }}
                   >
@@ -188,9 +242,7 @@ export default function Plans() {
                           {day.task}
                         </p>
 
-                        <small style={{ color: "var(--color-text-light)" }}>
-                          {day.resource}
-                        </small>
+                        {renderResource(day.resource)}
                       </div>
                     ))}
                   </div>
