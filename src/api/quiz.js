@@ -14,3 +14,6 @@ export const generateGuestPlan = (data) =>
 
 export const getPlans = () =>
   api.get("/plans");
+
+export const updatePlanProgress = (planId, data) =>
+  api.patch(`/plans/${planId}/progress`, data);
