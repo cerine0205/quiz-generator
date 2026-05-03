@@ -118,6 +118,38 @@ export default function GuestChat() {
         }}
       >
         <div style={{ marginBottom: "24px" }}>
+
+          {!quiz && !loading && !userMessage && (
+  <div
+    style={{
+      minHeight: "calc(100vh - 200px)", 
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    }}
+  >
+    <div
+      style={{
+        maxWidth: "500px",
+        textAlign: "center",
+      }}
+    >
+      <h2 style={{ marginBottom: "12px" }}>
+        Try AI Learning 
+      </h2>
+
+      <p style={{ color: "var(--color-text-light)", lineHeight: "1.6" }}>
+        Enter any topic to generate a quiz, discover your level,
+        and get a personalized learning plan.
+      </p>
+
+      <p style={{ marginTop: "12px", color: "var(--color-text-light)" }}>
+        ⚠️ Progress won’t be saved
+      </p>
+
+    </div>
+  </div>
+)}
           {userMessage && <ChatBubble sender="user">{userMessage}</ChatBubble>}
 
           {loading && <Loading text="Generating quiz..." />}

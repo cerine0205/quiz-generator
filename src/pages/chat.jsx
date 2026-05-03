@@ -165,6 +165,36 @@ export default function Chat() {
                         paddingBottom: "120px",
                     }}
                 >
+
+
+                    {!quiz && !loading && !userMessage && (
+                        <div
+                            style={{
+                                height: "100%",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                            }}
+                        >
+                            <div
+                                style={{
+                                    maxWidth: "500px",
+                                    textAlign: "center",
+                                }}
+                            >
+                                <h2 style={{ marginBottom: "12px" }}>
+                                    Learn Smarter with AI
+                                </h2>
+
+                                <p style={{ color: "var(--color-text-light)", lineHeight: "1.6" }}>
+                                    Enter any topic to generate a quick quiz, discover your level,
+                                    and get a personalized 7-day learning plan.
+                                </p>
+
+                       
+                            </div>
+                        </div>
+                    )}
                     {userMessage && <ChatBubble sender="user">{userMessage}</ChatBubble>}
 
                     {loading && <Loading />}
@@ -334,6 +364,7 @@ export default function Chat() {
                         </Button>
                     </div>
                 )}
+
 
             </div>
         </div>
