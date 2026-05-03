@@ -1,23 +1,17 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import Sidebar from "../components/Sidebar";
 import Loading from "../components/Loading";
+import Button from "../components/Button";
 import { getPlans } from "../api/quiz";
-import { useAuth } from "../context/AuthContext";
 
 export default function Plans() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
 
   const [plans, setPlans] = useState([]);
+  const [openPlanId, setOpenPlanId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  const handleLogout = async () => {
-    await logout();
-    navigate("/");
-  };
 
   useEffect(() => {
     const loadPlans = async () => {
@@ -36,77 +30,174 @@ export default function Plans() {
   }, []);
 
   return (
-    <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
-      
-      {/* Sidebar */}
-      <Sidebar
-        chats={[]} // ما نحتاجه هنا
-        onNewChat={() => navigate("/chat")}
-        onSelectChat={() => {}}
-        onLogout={handleLogout}
-      />
+    <div
+      style={{
+        minHeight: "100vh",
+        background:
+          "radial-gradient(circle at top left, rgba(124, 58, 237, 0.22), transparent 35%), radial-gradient(circle at top right, rgba(6, 182, 212, 0.16), transparent 30%), var(--color-bg)",
+        color: "var(--color-text)",
+        padding: "32px",
+      }}
+    >
+      <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+        <Button variant="secondary" onClick={() => navigate("/chat")}>
+          ← Back to Chat
+        </Button>
 
-      {/* Main */}
-      <div
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          padding: "32px",
-          background: "var(--color-bg)",
-          color: "var(--color-text)",
-        }}
-      >
-        <h1 style={{ marginBottom: "20px" }}>Your Learning Plans</h1>
+        <div style={{ marginTop: "28px", marginBottom: "28px" }}>
+          <p
+            style={{
+              margin: "0 0 8px",
+              color: "var(--color-accent)",
+              fontSize: "13px",
+              fontWeight: "700",
+              textTransform: "uppercase",
+              letterSpacing: "0.8px",
+            }}
+          >
+            Learning Dashboard
+          </p>
+
+          <h1 style={{ margin: 0, fontSize: "42px" }}>
+            Your Learning Plans
+          </h1>
+
+          <p
+            style={{
+              marginTop: "10px",
+              color: "var(--color-text-light)",
+              fontSize: "16px",
+            }}
+          >
+            Review your generated roadmaps and open any plan when you need it.
+          </p>
+        </div>
 
         {loading && <Loading text="Loading plans..." />}
 
-        {error && (
-          <p style={{ color: "var(--color-danger)" }}>{error}</p>
-        )}
+        {error && <p style={{ color: "var(--color-danger)" }}>{error}</p>}
 
         {!loading && plans.length === 0 && (
-          <p style={{ color: "var(--color-text-light)" }}>
-            No plans yet. Generate one from chat . . .
-          </p>
+          <div
+            style={{
+              background: "var(--color-card)",
+              border: "1px solid var(--color-border)",
+              borderRadius: "22px",
+              padding: "28px",
+              boxShadow: "var(--shadow-sm)",
+            }}
+          >
+            <h3 style={{ marginTop: 0 }}>No plans yet</h3>
+            <p style={{ color: "var(--color-text-light)" }}>
+              Generate a learning plan from chat to see it here.
+            </p>
+
+            <Button onClick={() => navigate("/chat")}>
+              Generate Your First Plan
+            </Button>
+          </div>
         )}
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          {plans.map((plan) => (
-            <div
-              key={plan.id}
-              style={{
-                background: "var(--color-card)",
-                border: "1px solid var(--color-border)",
-                borderRadius: "16px",
-                padding: "20px",
-                boxShadow: "var(--shadow-sm)",
-              }}
-            >
-              <h2>{plan.topic}</h2>
-              <p style={{ marginBottom: "12px" }}>
-                Level: <strong>{plan.level}</strong>
-              </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          {plans.map((plan) => {
+            const isOpen = openPlanId === plan.id;
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                {plan.plan.map((day) => (
+            return (
+              <div
+                key={plan.id}
+                style={{
+                  background: "rgba( var(--card-rgb), 0.85 )",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: "22px",
+                  padding: "20px",
+                  boxShadow: "var(--shadow-sm)",
+                  backdropFilter: "blur(12px)",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: "16px",
+                    alignItems: "center",
+                  }}
+                >
+                  <div>
+                    <p
+                      style={{
+                        margin: "0 0 6px",
+                        color: "var(--color-accent)",
+                        fontSize: "12px",
+                        fontWeight: "700",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.8px",
+                      }}
+                    >
+                      7-Day Roadmap
+                    </p>
+
+                    <h2 style={{ margin: "0 0 8px", fontSize: "24px" }}>
+                      {plan.topic}
+                    </h2>
+
+                    <p
+                      style={{
+                        margin: 0,
+                        color: "var(--color-text-light)",
+                      }}
+                    >
+                      Level:{" "}
+                      <strong style={{ color: "var(--color-accent)" }}>
+                        {plan.level}
+                      </strong>
+                    </p>
+                  </div>
+
+                  <Button
+                    variant="secondary"
+                    onClick={() => setOpenPlanId(isOpen ? null : plan.id)}
+                  >
+                    {isOpen ? "Hide Plan" : "View Plan"}
+                  </Button>
+                </div>
+
+                {isOpen && (
                   <div
-                    key={day.day}
                     style={{
-                      padding: "12px",
-                      border: "1px solid var(--color-border)",
-                      borderRadius: "12px",
+                      marginTop: "18px",
+                      display: "grid",
+                      gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                      gap: "12px",
                     }}
                   >
-                    <strong>Day {day.day}</strong>
-                    <p>{day.task}</p>
-                    <small style={{ color: "var(--color-text-light)" }}>
-                      {day.resource}
-                    </small>
+                    {plan.plan.map((day) => (
+                      <div
+                        key={day.day}
+                        style={{
+                          padding: "16px",
+                          border: "1px solid var(--color-border)",
+                          borderRadius: "16px",
+                          background: "var(--color-card-soft)",
+                        }}
+                      >
+                        <strong style={{ color: "var(--color-accent)" }}>
+                          Day {day.day}
+                        </strong>
+
+                        <p style={{ margin: "10px 0", lineHeight: "1.5" }}>
+                          {day.task}
+                        </p>
+
+                        <small style={{ color: "var(--color-text-light)" }}>
+                          {day.resource}
+                        </small>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

@@ -9,48 +9,86 @@ export default function Welcome() {
   return (
     <div
       style={{
-        height: "100vh",
+        minHeight: "100vh",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        background: "var(--color-bg)",
+        background:
+          "radial-gradient(circle at top left, rgba(124, 58, 237, 0.28), transparent 35%), radial-gradient(circle at top right, rgba(6, 182, 212, 0.2), transparent 30%), var(--color-bg)",
+        padding: "24px",
       }}
     >
       <div
         style={{
+          maxWidth: "760px",
+          width: "100%",
           textAlign: "center",
-          background: "var(--color-card)",
-          padding: "40px",
-          borderRadius: "16px",
+          background: "rgba(17, 24, 39, 0.88)",
+          padding: "56px 40px",
+          borderRadius: "28px",
+          border: "1px solid var(--color-border)",
           boxShadow: "var(--shadow-sm)",
-          width: "350px",
+          backdropFilter: "blur(12px)",
         }}
       >
-        <h1 style={{ marginBottom: "10px" }}>Quiz Generator</h1>
-        <p style={{ color: "var(--color-text-light)", marginBottom: "20px" }}>
-          Generate quizzes from any topic using AI
+        <p
+          style={{
+            margin: "0 0 12px",
+            color: "var(--color-accent)",
+            fontSize: "13px",
+            fontWeight: "700",
+            textTransform: "uppercase",
+            letterSpacing: "1px",
+          }}
+        >
+          AI Learning Platform
         </p>
 
-        {isAuthenticated ? (
-          <Button onClick={() => (window.location.href = "/chat")}>
-            Go to Chat
-          </Button>
-        ) : (
-          <>
-            <Button onClick={() => (window.location.href = "/login")}>
-              Login / Register
-            </Button>
+        <h1
+          style={{
+            margin: "0 0 16px",
+            fontSize: "52px",
+            lineHeight: "1.05",
+          }}
+        >
+          SkillPath AI
+        </h1>
 
-            <div style={{ marginTop: "10px" }} />
+        <p
+          style={{
+            maxWidth: "560px",
+            margin: "0 auto 30px",
+            color: "var(--color-text-light)",
+            fontSize: "18px",
+            lineHeight: "1.6",
+          }}
+        >
+          Discover your real level and generate a personalized 7-day learning
+          plan built around your answers.
+        </p>
 
-            <Button
-              variant="secondary"
-              onClick={() => navigate("/guest")}
-            >
-              Continue as Guest
-            </Button>
-          </>
-        )}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "12px",
+            flexWrap: "wrap",
+          }}
+        >
+          {isAuthenticated ? (
+            <Button onClick={() => navigate("/chat")}>Go to Chat</Button>
+          ) : (
+            <>
+              <Button onClick={() => navigate("/login")}>
+                Login / Register
+              </Button>
+
+              <Button variant="secondary" onClick={() => navigate("/guest")}>
+                Continue as Guest
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

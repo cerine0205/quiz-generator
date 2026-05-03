@@ -191,48 +191,83 @@ export default function Chat() {
                     {isCompleted && (
                         <div
                             style={{
-                                marginTop: "16px",
-                                background: "var(--color-card)",
+                                marginTop: "18px",
+                                background:
+                                    "linear-gradient(135deg, var(--color-primary-light), var(--color-accent-light))",
                                 border: "1px solid var(--color-border)",
-                                borderRadius: "16px",
-                                padding: "16px",
+                                borderRadius: "20px",
+                                padding: "18px",
                                 boxShadow: "var(--shadow-sm)",
                             }}
                         >
-                            <h3>Your Assessment Result</h3>
-                            <p>
-                                Score: {calculateScore()} / {quiz.questions.length}
+                            <p
+                                style={{
+                                    margin: "0 0 6px",
+                                    color: "var(--color-accent)",
+                                    fontSize: "13px",
+                                    fontWeight: "700",
+                                    textTransform: "uppercase",
+                                    letterSpacing: "0.8px",
+                                }}
+                            >
+                                Assessment Result
                             </p>
-                            <p>Level: {getLevel()}</p>
+
+                            <h3 style={{ margin: 0 }}>
+                                Score: {calculateScore()} / {quiz.questions.length}
+                            </h3>
+
+                            <p style={{ marginBottom: 0, color: "var(--color-text-light)" }}>
+                                Level: <strong style={{ color: "var(--color-text)" }}>{getLevel()}</strong>
+                            </p>
                         </div>
                     )}
+
 
                     {plan && (
                         <div
                             style={{
-                                marginTop: "16px",
+                                marginTop: "18px",
                                 background: "var(--color-card)",
                                 border: "1px solid var(--color-border)",
-                                borderRadius: "16px",
-                                padding: "16px",
+                                borderRadius: "20px",
+                                padding: "20px",
                                 boxShadow: "var(--shadow-sm)",
                             }}
                         >
-                            <h3>7-Day Learning Plan</h3>
-                            <p>Level: {plan.level}</p>
+                            <p
+                                style={{
+                                    margin: "0 0 6px",
+                                    color: "var(--color-accent)",
+                                    fontSize: "13px",
+                                    fontWeight: "700",
+                                    textTransform: "uppercase",
+                                    letterSpacing: "0.8px",
+                                }}
+                            >
+                                Learning Plan
+                            </p>
 
-                            <div style={{ marginTop: "10px", display: "flex", flexDirection: "column", gap: "10px" }}>
+                            <h3 style={{ margin: "0 0 6px" }}>7-Day Roadmap</h3>
+                            <p style={{ marginTop: 0, color: "var(--color-text-light)" }}>
+                                Level: {plan.level}
+                            </p>
+
+                            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                                 {plan.plan.map((day) => (
                                     <div
                                         key={day.day}
                                         style={{
-                                            padding: "10px",
+                                            padding: "14px",
                                             border: "1px solid var(--color-border)",
-                                            borderRadius: "10px",
+                                            borderRadius: "14px",
+                                            background: "var(--color-card-soft)",
                                         }}
                                     >
-                                        <strong>Day {day.day}</strong>
-                                        <p>{day.task}</p>
+                                        <strong style={{ color: "var(--color-accent)" }}>
+                                            Day {day.day}
+                                        </strong>
+                                        <p style={{ margin: "8px 0" }}>{day.task}</p>
                                         <small style={{ color: "var(--color-text-light)" }}>
                                             {day.resource}
                                         </small>
@@ -282,10 +317,12 @@ export default function Chat() {
                             right: "20px",
                             display: "flex",
                             justifyContent: "center",
-                            background: "var(--color-card)",
+                            background: "rgba( var(--card-rgb), 0.85 )",
+                            backdropFilter: "blur(12px)",
                             padding: "12px",
-                            borderRadius: "16px",
+                            borderRadius: "20px",
                             border: "1px solid var(--color-border)",
+                            boxShadow: "var(--shadow-sm)",
                         }}
                     >
                         <Button
